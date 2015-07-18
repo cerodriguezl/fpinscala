@@ -93,4 +93,8 @@ object List { // `List` companion object. Contains functions for creating and wo
         foldRight(l, Nil: List[B])((h, acc) => Cons(f(h), acc))
 
     def addOne(l: List[Int]): List[Int] = map(l)(_ + 1)
+
+    def filter[A](l: List[A])(f: A => Boolean): List[A] =
+        foldRight(l, Nil: List[A])((h, acc) => if(f(h)) Cons(h, acc) else acc)
+
 }
