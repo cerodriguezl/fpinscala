@@ -102,4 +102,10 @@ object List { // `List` companion object. Contains functions for creating and wo
     def filterViaFlatMap[A](l: List[A])(f: A => Boolean): List[A] =
         flatMap(l)(x => if (f(x)) List(x) else Nil)
 
+    def zipWith[A, B, C](a: List[A], b: List[B])(f: (A, B) => C): List[C] = (a, b) match {
+        case (Nil, _)                     => Nil
+        case (_, Nil)                     => Nil
+        case (Cons(ha, ta), Cons(hb, tb)) => Cons(f(ha, hb), zipWith(ta, tb)(f))
+    }
+
 }
