@@ -63,10 +63,7 @@ object Stream {
         if (as.isEmpty) empty
         else cons(as.head, apply(as.tail: _*))
 
-    def constant[A](a: A): Stream[A] = {
-        lazy val tail: Stream[A] = Cons(() => a, () => tail)
-        tail
-    }
+    def constant[A](a: A): Stream[A] = unfold(a)(_ => Some(a, a))
 
     def from(n: Int): Stream[Int] = unfold(n)(x => Some(x, x + 1))
 
