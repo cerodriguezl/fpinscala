@@ -3,10 +3,14 @@ package fpinscala.laziness
 object Lazyness {
 
     def main(args: Array[String]) {
-        val stream = Stream(1, 2, 3, 4, 5, 6, 7, 8)
-        val filtered = stream.filter(_ % 2 == 0)
-        println(filtered)
-        println(filtered.toList)
+        val a = Stream(1, 2, 3, 4)
+        val b = Stream(5, 6, 7, 8)
+        val c = a.append(b)
+        val d = b.append(a)
+        println(c)
+        println(d)
+        println(c.toList)
+        println(d.toList)
     }
 
 }
