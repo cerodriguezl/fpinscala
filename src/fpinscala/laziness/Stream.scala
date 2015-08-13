@@ -5,6 +5,12 @@ import Stream._
 
 sealed trait Stream[+A] {
 
+    def foldRight[B](z: => B)(f: (A, => B) => B): B =
+        this match {
+            case Cons(h, t) => f(h(), t().foldRight(z)(f))
+            case _          => z
+        }
+
     def toList: List[A] = {
         @tailrec
         def go(s: Stream[A], acc: List[A]): List[A] = s match {
@@ -29,6 +35,8 @@ sealed trait Stream[+A] {
         case Cons(h, t) if p(h()) => cons(h(), t() takeWhile p)
         case _                    => empty
     }
+
+    def forAll(p: A => Boolean): Boolean = foldRight(true)((a, b) => p(a) && b)
 
 }
 
