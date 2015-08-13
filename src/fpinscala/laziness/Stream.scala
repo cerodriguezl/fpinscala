@@ -68,7 +68,7 @@ object Stream {
         tail
     }
 
-    def from(n: Int): Stream[Int] = cons(n, from(n + 1))
+    def from(n: Int): Stream[Int] = unfold(n)(x => Some(x, x + 1))
 
     def fibs(): Stream[Int] = {
         def go(a: Int, b: Int): Stream[Int] = cons(a, go(b, a + b))
