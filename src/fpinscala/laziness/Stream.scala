@@ -75,4 +75,8 @@ object Stream {
         go(0, 1)
     }
 
+    def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = {
+        f(z).map(x => cons(x._1, unfold(x._2)(f))).getOrElse(empty)
+    }
+
 }
