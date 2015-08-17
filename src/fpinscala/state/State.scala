@@ -31,4 +31,9 @@ object RNG {
         ((i, d), rng2)
     }
 
+    def doubleInt(rng: RNG): ((Double, Int), RNG) = {
+        val ((i, d), rng1) = intDouble(rng)
+        ((d, i), rng1)
+    }
+
 }
