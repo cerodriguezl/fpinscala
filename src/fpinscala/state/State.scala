@@ -17,15 +17,25 @@ object RNG {
         }
     }
 
+    type Rand[+A] = RNG => (A, RNG)
+
+    val int: Rand[Int] = _.nextInt
+
+    def unit[A](a: A): Rand[A] =
+        rng => (a, rng)
+
+    def map[A, B](s: Rand[A])(f: A => B): Rand[B] =
+        rng => {
+            val (a, rng2) = s(rng)
+            (f(a), rng2)
+        }
+
     def nonNegativeInt(rng: RNG): (Int, RNG) = {
         val (n, r) = rng.nextInt
         (if (n < 0) -(n + 1) else n, r)
     }
 
-    def double(rng: RNG): (Double, RNG) = {
-        val (n, r) = nonNegativeInt(rng)
-        (n / (Int.MaxValue.toDouble + 1), r)
-    }
+    def double: Rand[Double] = map(nonNegativeInt)(_ / (Int.MaxValue.toDouble + 1))
 
     def intDouble(rng: RNG): ((Int, Double), RNG) = {
         val (i, rng1) = rng.nextInt
