@@ -50,8 +50,8 @@ object RNG {
 
     def double3(rng: RNG): ((Double, Double, Double), RNG) = {
         val (a, rng1) = double(rng)
-        val (b, rng2) = double(rng)
-        val (c, rng3) = double(rng)
+        val (b, rng2) = double(rng1)
+        val (c, rng3) = double(rng2)
         ((a, b, c), rng3)
     }
 
@@ -73,5 +73,16 @@ object RNG {
             val (a, rng1) = ra(rng)
             val (b, rng2) = rb(rng1)
             (f(a, b), rng2)
+        }
+
+    def flatMap[A, B](f: Rand[A])(g: A => Rand[B]): Rand[B] = rng => {
+        val (a, rng2) = f(rng)
+        g(a)(rng2)
+    }
+
+    def nonNegativeLessThan(n: Int): Rand[Int] =
+        flatMap(nonNegativeInt) { i =>
+            val mod = i % n
+            if (i + (n - 1) - mod >= 0) unit(mod) else nonNegativeLessThan(n)
         }
 }
