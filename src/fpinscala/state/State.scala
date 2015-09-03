@@ -27,7 +27,7 @@ object RNG {
     def map[A, B](s: Rand[A])(f: A => B): Rand[B] =
         flatMap(s)(a => unit(f(a)))
 
-    def nonNegativeInt(rng: RNG): (Int, RNG) = {
+    def nonNegativeInt: Rand[Int] = rng => {
         val (n, r) = rng.nextInt
         (if (n < 0) -(n + 1) else n, r)
     }
@@ -52,21 +52,15 @@ object RNG {
         ((a, b, c), rng3)
     }
 
-    def ints(count: Int)(rng: RNG): (List[Int], RNG) = {
-        @tailrec
-        def go(n: Int, acc: List[Int], rng: RNG): (List[Int], RNG) = {
-            if (n <= 0) {
-                (acc, rng)
-            } else {
-                val (a, r) = rng.nextInt
-                go(n - 1, a :: acc, r)
-            }
-        }
-        go(count, List(), rng)
+    def ints(count: Int): Rand[List[Int]] = {
+        sequence(List.fill(count)(int))
     }
 
     def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
         flatMap(ra)(a => map(rb)(b => f(a, b)))
+
+    def sequence[A](fs: List[Rand[A]]): Rand[List[A]] =
+        fs.foldRight(unit(List(): List[A]))((elem, acc) => map2(elem, acc)(_ :: _))
 
     def flatMap[A, B](f: Rand[A])(g: A => Rand[B]): Rand[B] = rng => {
         val (a, rng2) = f(rng)
@@ -78,4 +72,5 @@ object RNG {
             val mod = i % n
             if (i + (n - 1) - mod >= 0) unit(mod) else nonNegativeLessThan(n)
         }
+
 }
