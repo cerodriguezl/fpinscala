@@ -32,4 +32,9 @@ object Par {
 
     def asyncF[A, B](f: A => B): A => Par[B] = a => lazyUnit(f(a))
 
+    def sequence[A](ps: List[Par[A]]): Par[List[A]] = ps match {
+        case Nil    => unit(Nil)
+        case h :: t => map2(h, fork(sequence(t)))(_ :: _)
+    }
+
 }
