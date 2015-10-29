@@ -28,6 +28,9 @@ object Par {
             def call = a(es).get
         })
 
+    def map[A, B](pa: Par[A])(f: A => B): Par[B] =
+        map2(pa, unit(()))((a, _) => f(a))
+
     def lazyUnit[A](a: => A): Par[A] = fork(unit(a))
 
     def asyncF[A, B](f: A => B): A => Par[B] = a => lazyUnit(f(a))
@@ -35,6 +38,11 @@ object Par {
     def sequence[A](ps: List[Par[A]]): Par[List[A]] = ps match {
         case Nil    => unit(Nil)
         case h :: t => map2(h, fork(sequence(t)))(_ :: _)
+    }
+
+    def parFilter[A](as: List[A])(f: A => Boolean): Par[List[A]] = {
+        val p = as map (asyncF((a: A) => if (f(a)) List(a) else List()))
+        map(sequence(p))(_.flatten)
     }
 
 }
