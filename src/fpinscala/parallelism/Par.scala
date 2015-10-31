@@ -54,4 +54,10 @@ object Par {
     def choice[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
         choiceN(map(cond)(value => if (value) 0 else 1))(List(t, f))
 
+    def choiceMap[K, V](key: Par[K])(choices: Map[K, Par[V]]): Par[V] =
+        es => {
+            val option = run(es)(key).get
+            run(es)(choices(option))
+        }
+
 }
