@@ -45,19 +45,22 @@ object Par {
         map(sequence(p))(_.flatten)
     }
 
-    def choiceN[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
-        es => {
-            val option = run(es)(n).get
-            run(es)(choices(option))
-        }
-
-    def choice[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
-        choiceN(map(cond)(value => if (value) 0 else 1))(List(t, f))
-
     def choiceMap[K, V](key: Par[K])(choices: Map[K, Par[V]]): Par[V] =
         es => {
             val option = run(es)(key).get
             run(es)(choices(option))
         }
+
+    def chooser[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] =
+        es => {
+            val option = run(es)(pa).get
+            run(es)(choices(option))
+        }
+
+    def choice[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+        chooser(cond)(if (_) t else f)
+
+    def choiceN[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
+        chooser(n)(choices(_))
 
 }
